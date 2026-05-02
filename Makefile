@@ -47,7 +47,7 @@ dev-js: ## Watch and rebuild JS bundle
 	npx esbuild static/js/app.js --bundle --outfile=static/js/bundle.js --watch
 
 test: ## Run Go tests
-	go test ./...
+	go test ./... | grep -v "no test files"
 
 test-v: ## Run Go tests (verbose)
 	go test -v ./...
