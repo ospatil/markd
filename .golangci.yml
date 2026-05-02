@@ -1,0 +1,19 @@
+version: "2"
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - ineffassign
+    - misspell
+
+formatters:
+  enable:
+    - gofmt
+
+issues:
+  exclude-dirs:
+    - vendor
+  exclude-generated: strict

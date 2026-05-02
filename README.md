@@ -41,21 +41,29 @@ Each tool fills a distinct role without overlap. The server returns HTML fragmen
 
 Every interaction is an HTTP request that returns an HTML fragment:
 
-```bash
+```
 User clicks "Delete" button
-  → HTMX sends DELETE /bookmarks/42
-  → Go handler deletes from SQLite, returns empty 200
-  → HTMX removes the element (outerHTML swap)
+  -> HTMX sends DELETE /bookmarks/42
+  -> Go handler deletes from SQLite, returns empty 200
+  -> HTMX removes the element (outerHTML swap)
 ```
 
-```bash
+```
 User types in search box
-  → HTMX sends GET /bookmarks/search?q=go (after 300ms debounce)
-  → Go handler queries SQLite, renders templ component to HTML
-  → HTMX swaps the bookmark list with the filtered results
+  -> HTMX sends GET /bookmarks/search?q=go (after 300ms debounce)
+  -> Go handler queries SQLite, renders templ component to HTML
+  -> HTMX swaps the bookmark list with the filtered results
 ```
 
 No JSON serialization, no client-side state management, no loading spinners. The response IS the UI.
+
+### Request Walkthrough: GET /
+
+Here's what happens when a user opens `http://localhost:3000` for the first time, traced through the actual code:
+
+![Request Walkthrough](docs/request-walkthrough.png)
+
+When the same URL is requested by HTMX (e.g., clicking "All Bookmarks" in the sidebar), the `HX-Request: true` header is set. The handler skips the full page layout and returns just the `BookmarkList` fragment, which HTMX swaps into `#bookmark-list`. Same handler, same data, different response shape.
 
 ## Project Structure
 
@@ -66,15 +74,19 @@ markd/
     lambda/main.go              # AWS Lambda entry point
   internal/
     app/router.go               # Shared Chi router (used by both server and lambda)
-    handler/handler.go          # HTTP handlers (bookmarks, folders, search)
+    handler/
+      handler.go                # HTTP handlers (bookmarks, folders, search)
+      handler_test.go           # Handler tests
     model/                      # Bookmark, Folder structs
     store/
       store.go                  # Store interface
       sqlite.go                 # SQLite implementation
+      sqlite_test.go            # Store tests
       migrations/001_init.sql   # Schema
   components/
     layout.templ                # Base HTML layout (head, nav, scripts)
     bookmarks.templ             # Bookmark list, item, edit form, empty state
+    bookmarks_test.go           # Component render tests
     folders.templ               # Folder sidebar
     forms.templ                 # Add bookmark dialog, validation errors
   static/
@@ -85,17 +97,20 @@ markd/
     vendor/                     # HTMX 4, preload extension (vendored)
   tests/e2e/                    # Playwright E2E tests
   docker/nginx/                 # Optional Nginx config (for non-CDN deployments)
+  docs/                         # Stack discussion and design notes
   Dockerfile                    # Multi-stage build (distroless runtime)
   docker-compose.yml            # Single-container local setup
+  .golangci.yml                 # Linter configuration
   Makefile                      # All development workflow commands
 ```
 
 ## Prerequisites
 
 - **Go 1.24+** (with GOTOOLCHAIN=auto for newer versions)
-- **Node.js 20+** (for Tailwind CSS build and esbuild)
+- **Node.js 24+** (for Tailwind CSS build and esbuild)
 - **templ**  - `go install github.com/a-h/templ/cmd/templ@latest`
 - **Air** (optional, for live reload)  - `go install github.com/air-verse/air@latest`
+- **golangci-lint** (optional, for linting)  - `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`
 
 ## Getting Started
 
@@ -168,21 +183,27 @@ func TestFilterByTag(t *testing.T) {
 
 | Command | Description |
 |---------|-------------|
+| **Development** | |
 | `make dev` | Start all watchers (server + templ + CSS + JS) |
-| `make run` | Build and run the server |
-| `make build` | Build the server binary |
+| `make run` | Build everything and run the server |
+| **Quality** | |
+| `make test` | Run Go tests (19 tests) |
+| `make test-e2e` | Run Playwright E2E tests (7 tests) |
+| `make lint` | Run Go linter (golangci-lint) |
+| `make fmt` | Format Go code |
+| **Docker** | |
+| `make docker-up` | Build images and start Docker container |
+| `make docker-down` | Stop Docker container |
+| `make docker-logs` | Tail Docker logs |
+| `make docker-build-direct` | Build Docker image (use if Go module proxy is blocked) |
+| **Deployment** | |
 | `make build-lambda` | Build Lambda binary (arm64 Linux) |
+| **Low-level** (called by other targets) | |
+| `make docker-build` | Build Docker images without starting |
+| `make build` | Build the server binary |
 | `make generate` | Generate templ Go code |
 | `make css` | Build Tailwind CSS |
 | `make js` | Bundle Stimulus controllers |
-| `make test` | Run Go tests |
-| `make test-v` | Run Go tests (verbose) |
-| `make test-e2e` | Run Playwright E2E tests |
-| `make docker-build` | Build Docker image |
-| `make docker-build-direct` | Build Docker image (bypass Go module proxy) |
-| `make docker-up` | Start Docker container |
-| `make docker-down` | Stop Docker container |
-| `make docker-logs` | Tail Docker logs |
 | `make clean` | Remove build artifacts |
 | `make help` | Show all available commands |
 

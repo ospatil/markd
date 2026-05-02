@@ -1,23 +1,20 @@
 {
   "name": "markd",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "css": "tailwindcss -i static/css/input.css -o static/css/app.css --minify",
+    "js": "esbuild static/js/app.js --bundle --outfile=static/js/bundle.js --minify"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ospatil/markd.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/ospatil/markd/issues"
-  },
-  "homepage": "https://github.com/ospatil/markd#readme",
   "devDependencies": {
     "@hotwired/stimulus": "^3.2.2",
     "@playwright/test": "^1.59.1",

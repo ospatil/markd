@@ -2,8 +2,8 @@ export PATH := $(HOME)/go/bin:$(PATH)
 
 TEMPL := $(HOME)/go/bin/templ
 
-.PHONY: generate css js build build-lambda run dev dev-server dev-templ dev-css test test-v test-e2e clean help \
-       docker-build docker-build-direct docker-up docker-down docker-logs
+.PHONY: generate css js build build-lambda run dev dev-server dev-templ dev-css test test-v test-e2e lint fmt clean help \
+       docker-build docker-build-direct docker-up docker-down docker-logs docs
 
 generate: ## Generate templ Go code
 	$(TEMPL) generate
@@ -48,8 +48,17 @@ test-v: ## Run Go tests (verbose)
 test-e2e: build ## Run Playwright E2E tests
 	npx playwright test
 
+lint: ## Run Go linter
+	golangci-lint run
+
+fmt: ## Format Go code
+	go fmt ./...
+
 clean: ## Remove build artifacts
 	rm -rf bin/ tmp/ static/css/app.css static/js/bundle.js
+
+docs: ## Generate documentation images from drawio files
+	/Applications/draw.io.app/Contents/MacOS/draw.io --export --format png --scale 2 --border 20 --output docs/request-walkthrough.png docs/request-walkthrough.drawio
 
 # Docker
 docker-build: ## Build docker images
