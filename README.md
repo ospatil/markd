@@ -108,17 +108,21 @@ markd/
 
 - **Go 1.24+** (with GOTOOLCHAIN=auto for newer versions)
 - **Node.js 24+** (for Tailwind CSS build and esbuild)
-- **templ**  - `go install github.com/a-h/templ/cmd/templ@latest`
-- **Air** (optional, for live reload)  - `go install github.com/air-verse/air@latest`
-- **golangci-lint** (optional, for linting)  - `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`
+- **templ** - type-safe HTML templating code generation
+- **Air** - live reload for Go server
+- **golangci-lint** - Go linter
+
+Run `make setup` to install the last three automatically.
 
 ## Getting Started
 
 ```bash
-# Clone and install dependencies
+# Clone the repo
 git clone https://github.com/ospatil/markd.git
 cd markd
-npm install
+
+# Install all dependencies (npm + Go tools)
+make setup
 
 # Build and run
 make run

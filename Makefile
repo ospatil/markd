@@ -5,6 +5,12 @@ TEMPL := $(HOME)/go/bin/templ
 .PHONY: generate css js build build-lambda run dev dev-server dev-templ dev-css test test-v test-e2e lint fmt clean help \
        docker-build docker-build-direct docker-up docker-down docker-logs docs
 
+setup: ## Install dependencies and required Go tools (templ, air, golangci-lint)
+	npm install
+	go install github.com/a-h/templ/cmd/templ@latest
+	go install github.com/air-verse/air@latest
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
 generate: ## Generate templ Go code
 	$(TEMPL) generate
 
