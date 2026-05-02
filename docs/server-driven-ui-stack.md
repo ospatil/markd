@@ -724,6 +724,59 @@ export default class extends Controller {
 }
 ```
 
+### Form Handling and Validation
+
+In SvelteKit, libraries like svelte-superforms provide client-side validation, per-field error messages, form state management (dirty, submitting), and schema-based validation with Zod. The schema needs to be kept in sync between client and server.
+
+In this stack, validation is entirely server-side. The server validates, returns errors as HTML, and HTMX swaps them in. No client-side validation library, no schema sync.
+
+**On submit (all fields at once):**
+
+```html
+<form hx-post="/bookmarks"
+      hx-status:422="target:#form-errors swap:innerHTML">
+```
+
+```go
+errors := map[string]string{}
+if title == "" {
+    errors["title"] = "Title is required"
+}
+if len(errors) > 0 {
+    w.WriteHeader(422)
+    components.FormErrors(errors).Render(r.Context(), w)
+    return
+}
+```
+
+**Per-field validation (on blur):**
+
+```html
+<input name="url" type="url"
+       hx-get="/validate/url"
+       hx-trigger="blur"
+       hx-target="next p"
+       hx-swap="outerHTML" />
+<p></p>
+```
+
+Each field validates independently as the user tabs through the form. The full form still validates on submit as a safety net.
+
+**Feature comparison:**
+
+| Feature | SvelteKit (superforms) | This Stack |
+|---------|----------------------|------------|
+| Per-field errors | Client-side, instant | Server round-trip on blur (~5ms) |
+| Required indicators | Zod schema | HTML `required` attribute + CSS |
+| Submitting state | `$submitting` store | HTMX `hx-indicator` or `hx-disabled-elt` |
+| Schema validation | Zod (shared client/server) | Go struct tags (server only) |
+| Client-side validation | Built-in | HTML5 attributes (`required`, `type`, `pattern`) |
+| Validation logic location | Client + server (must sync) | Server only (single source of truth) |
+
+The tradeoff: every validation round-trips to the server. For most forms this is imperceptible. For forms where instant client feedback matters (password strength, username availability), add a Stimulus controller or use HTML5 validation attributes.
+
+The win: validation logic lives in one place. No keeping Zod schemas in sync between client and server. No hydration bugs where client validation passes but server rejects.
+
 ### DX Comparison with SvelteKit
 
 | Step | SvelteKit | Go + HTMX |
