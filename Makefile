@@ -7,6 +7,7 @@ TEMPL := $(HOME)/go/bin/templ
 
 setup: ## Install dependencies and required Go tools (templ, air, golangci-lint)
 	npm install
+	npx playwright install
 	go install github.com/a-h/templ/cmd/templ@latest
 	go install github.com/air-verse/air@latest
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
