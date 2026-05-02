@@ -72,10 +72,10 @@ docker-build: ## Build docker images
 	docker compose build
 
 docker-build-direct: ## Build docker images (bypass Go proxy)
-	docker compose build --build-arg GOPROXY=direct
+	docker compose build --build-arg GOPROXY_OVERRIDE=direct
 
-docker-up: ## Start docker containers
-	docker compose up --build -d
+docker-up: docker-build ## Start docker containers
+	docker compose up -d
 
 docker-down: ## Stop docker containers
 	docker compose down

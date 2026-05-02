@@ -3,9 +3,14 @@ FROM golang:1.24-alpine AS builder
 
 RUN apk add --no-cache nodejs npm git
 
-# Override GOPROXY for restricted networks: --build-arg GOPROXY=direct
-ARG GOPROXY
-RUN if [ -n "$GOPROXY" ]; then go env -w GOPROXY=$GOPROXY GONOSUMDB=*; fi
+# For restricted networks (Go proxy blocked):
+#   make docker-build-direct
+# For open networks (default):
+#   make docker-build
+ARG GOPROXY_OVERRIDE
+RUN if [ -n "$GOPROXY_OVERRIDE" ]; then \
+      go env -w GOPROXY=$GOPROXY_OVERRIDE GONOSUMDB=*; \
+    fi
 ENV GOTOOLCHAIN=auto
 
 WORKDIR /app
