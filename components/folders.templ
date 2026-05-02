@@ -1,0 +1,64 @@
+package components
+
+import (
+  "fmt"
+  "github.com/ospatil/markd/internal/model"
+)
+
+templ FolderSidebar(folders []model.Folder, activeID string) {
+  <nav id="folder-sidebar" class="w-56 shrink-0 space-y-2">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Folders</h2>
+    </div>
+    <a
+      href="/"
+      class={ "block rounded-md px-3 py-1.5 text-sm transition-colors",
+        templ.KV("bg-accent text-accent-foreground", activeID == ""),
+        templ.KV("hover:bg-accent/50", activeID != "") }
+      hx-get="/"
+      hx-target="#bookmark-list"
+      hx-push-url="true"
+    >
+      All Bookmarks
+    </a>
+    for _, f := range folders {
+      <div class="group flex items-center">
+        <a
+          href={ templ.SafeURL(fmt.Sprintf("/?folder=%s", f.ID)) }
+          class={ "flex-1 block rounded-md px-3 py-1.5 text-sm transition-colors",
+            templ.KV("bg-accent text-accent-foreground", activeID == f.ID),
+            templ.KV("hover:bg-accent/50", activeID != f.ID) }
+          hx-get={ fmt.Sprintf("/?folder=%s", f.ID) }
+          hx-target="#bookmark-list"
+          hx-push-url="true"
+        >
+          { f.Name }
+        </a>
+        <button
+          class="btn-sm-icon-ghost opacity-0 group-hover:opacity-100 size-6"
+          hx-delete={ fmt.Sprintf("/folders/%s", f.ID) }
+          hx-target="#folder-sidebar"
+          hx-swap="outerHTML"
+          hx-confirm={ fmt.Sprintf("Delete folder '%s'?", f.Name) }
+        >
+          ✕
+        </button>
+      </div>
+    }
+    <form
+      class="flex gap-1"
+      hx-post="/folders"
+      hx-target="#folder-sidebar"
+      hx-swap="outerHTML"
+    >
+      <input
+        name="name"
+        type="text"
+        placeholder="New folder..."
+        class="input h-8 text-sm flex-1"
+        required
+      />
+      <button type="submit" class="btn-sm-outline h-8">+</button>
+    </form>
+  </nav>
+}

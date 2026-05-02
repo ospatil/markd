@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DB_PATH=/tmp/markd.db
+      - PORT=3000
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - db-data:/tmp
+    restart: unless-stopped
+
+volumes:
+  db-data:

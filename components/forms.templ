@@ -1,0 +1,107 @@
+package components
+
+import "github.com/ospatil/markd/internal/model"
+
+type BookmarkFormData struct {
+  Title string
+  URL   string
+  Tags  string
+}
+
+templ BookmarkFormDialog(data BookmarkFormData, folders []model.Folder, errors map[string]string) {
+  <dialog
+    id="add-bookmark-dialog"
+    class="dialog w-full sm:max-w-[480px]"
+    onclick="if (event.target === this) this.close()"
+    data-controller="dialog"
+    data-action="click->dialog#backdropClose"
+  >
+    <div>
+      <header>
+        <h2>Add Bookmark</h2>
+        <p>Save a new bookmark with optional tags.</p>
+      </header>
+      <section>
+        <form
+          id="add-bookmark-form"
+          class="form grid gap-4"
+          hx-post="/bookmarks"
+          hx-target="#bookmark-list"
+          hx-swap="afterbegin"
+          hx-status:422="target:#form-errors swap:innerHTML"
+        >
+          <div role="group" class="field">
+            <label for="bookmark-title">Title</label>
+            <input
+              id="bookmark-title"
+              name="title"
+              type="text"
+              placeholder="My Bookmark"
+              value={ data.Title }
+              if errors["title"] != "" {
+                aria-invalid="true"
+                aria-describedby="title-error"
+              }
+              autofocus
+            />
+            if errors["title"] != "" {
+              <p id="title-error" role="alert">{ errors["title"] }</p>
+            }
+          </div>
+          <div role="group" class="field">
+            <label for="bookmark-url">URL</label>
+            <input
+              id="bookmark-url"
+              name="url"
+              type="url"
+              placeholder="https://example.com"
+              value={ data.URL }
+              if errors["url"] != "" {
+                aria-invalid="true"
+                aria-describedby="url-error"
+              }
+            />
+            if errors["url"] != "" {
+              <p id="url-error" role="alert">{ errors["url"] }</p>
+            }
+          </div>
+          <div role="group" class="field">
+            <label for="bookmark-tags">Tags</label>
+            <input
+              id="bookmark-tags"
+              name="tags"
+              type="text"
+              placeholder="go, htmx, web (comma separated)"
+              value={ data.Tags }
+            />
+          </div>
+          if len(folders) > 0 {
+            <div role="group" class="field">
+              <label for="bookmark-folder">Folder</label>
+              <select id="bookmark-folder" name="folder_id" class="select w-full">
+                <option value="">None</option>
+                for _, f := range folders {
+                  <option value={ f.ID }>{ f.Name }</option>
+                }
+              </select>
+            </div>
+          }
+          <div id="form-errors"></div>
+        </form>
+      </section>
+      <footer>
+        <button class="btn-outline" data-action="click->dialog#close">Cancel</button>
+        <button class="btn" type="submit" form="add-bookmark-form">Save</button>
+      </footer>
+      <button type="button" aria-label="Close dialog" data-action="click->dialog#close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+  </dialog>
+}
+
+templ FormErrors(errors map[string]string) {
+  for field, msg := range errors {
+    <p role="alert" class="text-sm text-destructive">{ field }: { msg }</p>
+  }
+}

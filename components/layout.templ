@@ -1,0 +1,87 @@
+package components
+
+templ Layout(title string) {
+  <!DOCTYPE html>
+  <html lang="en" class="dark">
+    <head>
+      <meta charset="UTF-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>{ title } - markd</title>
+      <script>
+        (() => {
+          try {
+            const stored = localStorage.getItem('themeMode');
+            if (stored ? stored === 'dark'
+                        : matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          } catch (_) {}
+          const apply = dark => {
+            document.documentElement.classList.toggle('dark', dark);
+            try { localStorage.setItem('themeMode', dark ? 'dark' : 'light'); } catch (_) {}
+          };
+          document.addEventListener('basecoat:theme', (event) => {
+            const mode = event.detail?.mode;
+            apply(mode === 'dark' ? true
+                  : mode === 'light' ? false
+                  : !document.documentElement.classList.contains('dark'));
+          });
+        })();
+      </script>
+      <link rel="stylesheet" href="/static/css/app.css"/>
+      <script src="/static/vendor/htmx.min.js"></script>
+      <script src="/static/vendor/hx-preload.js"></script>
+      <script src="/static/js/bundle.js" defer></script>
+      <script>
+        document.addEventListener('closeDialog', () => {
+          const d = document.getElementById('add-bookmark-dialog');
+          if (d) { d.close(); d.querySelector('form')?.reset();
+            const errors = d.querySelector('#form-errors');
+            if (errors) errors.innerHTML = '';
+          }
+        });
+      </script>
+    </head>
+    <body class="min-h-screen bg-background text-foreground" hx-preload="mouseover"
+          data-controller="shortcuts">
+      <header class="border-b">
+        <div class="container mx-auto flex items-center justify-between px-4 py-3">
+          <a href="/" class="text-xl font-bold" hx-get="/" hx-target="#bookmark-list" hx-push-url="true">markd</a>
+          <div class="flex items-center gap-2">
+            <input
+              type="search"
+              name="q"
+              placeholder="Search... (Ctrl+K)"
+              class="input w-64"
+              hx-get="/bookmarks/search"
+              hx-trigger="input changed delay:300ms"
+              hx-target="#bookmark-list"
+              data-shortcuts-target="search"
+            />
+            <button
+              class="btn"
+              onclick="document.getElementById('add-bookmark-dialog').showModal()"
+            >
+              + Add Bookmark
+            </button>
+            <button
+              type="button"
+              aria-label="Toggle dark mode"
+              onclick="document.dispatchEvent(new CustomEvent('basecoat:theme'))"
+              class="btn-icon-outline size-8"
+            >
+              <span class="hidden dark:block">☀</span>
+              <span class="block dark:hidden">🌙</span>
+            </button>
+          </div>
+        </div>
+      </header>
+      <main class="container mx-auto px-4 py-6">
+        { children... }
+      </main>
+      @BookmarkFormDialog(BookmarkFormData{}, nil, nil)
+    </body>
+  </html>
+}

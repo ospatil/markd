@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./cmd/server"
+  delay = 1000
+  exclude_dir = ["assets", "tmp", "vendor", "node_modules", "static"]
+  exclude_regex = ["_templ\\.go$"]
+  include_ext = ["go", "templ"]
+  kill_delay = "0s"
+
+[misc]
+  clean_on_exit = true
