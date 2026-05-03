@@ -24,7 +24,7 @@ css: ## Build Tailwind CSS
 js: ## Bundle Stimulus controllers
 	npx esbuild static/js/app.js --bundle --outfile=static/js/bundle.js --minify
 
-build: generate css js ## Build the server binary
+build: lint lint-js generate css js ## Build the server binary
 	go build -o bin/markd ./cmd/server
 
 build-lambda: generate ## Build the Lambda binary
@@ -59,7 +59,13 @@ test-e2e: build ## Run Playwright E2E tests
 	npx playwright test
 
 lint: ## Run Go linter
-	golangci-lint run
+	$(HOME)/go/bin/golangci-lint run
+
+lint-js: ## Run JS linter and formatter (Biome)
+	npx biome check
+
+lint-js-fix: ## Fix JS lint and format issues
+	npx biome check --write
 
 fmt: ## Format Go code
 	go fmt ./...

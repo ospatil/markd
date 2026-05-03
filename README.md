@@ -207,6 +207,8 @@ func TestFilterByTag(t *testing.T) {
 | `make test` | Run Go tests (26 tests) |
 | `make test-e2e` | Run Playwright E2E tests (7 tests) |
 | `make lint` | Run Go linter (golangci-lint) |
+| `make lint-js` | Run JS linter and formatter (Biome) |
+| `make lint-js-fix` | Fix JS lint and format issues |
 | `make fmt` | Format Go code |
 | **Docker** | |
 | `make docker-up` | Build images and start Docker container |
@@ -219,7 +221,7 @@ func TestFilterByTag(t *testing.T) {
 | `make lambda-teardown` | Teardown Lambda deployment |
 | **Low-level** (called by other targets) | |
 | `make docker-build` | Build Docker images without starting |
-| `make build` | Build the server binary |
+| `make build` | Build the server binary (lint Go + JS -> generate templ -> build CSS -> bundle JS -> compile Go) |
 | `make generate` | Generate templ Go code |
 | `make swagger` | Generate Swagger API docs |
 | `make css` | Build Tailwind CSS |

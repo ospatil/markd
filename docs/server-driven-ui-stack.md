@@ -877,6 +877,7 @@ The win: validation logic lives in one place. No keeping Zod schemas in sync bet
 - **Type safety in templates** - solved by using templ. Compile-time errors for wrong types, missing parameters, and broken component references. Full LSP support with autocomplete and go-to-definition.
 - **Component dev/preview** - no Storybook equivalent out of the box. Build a `/dev` route that renders component examples.
 - **Error overlay** - no browser error overlay. With templ, errors surface at compile time in your editor via LSP. Runtime errors show in Go server logs.
+- **HTML/accessibility linting** - no equivalent to eslint-plugin-jsx-a11y or htmlhint for `.templ` files. templ's compiler catches structural issues (unclosed tags, invalid syntax, type mismatches) at build time, and the LSP provides inline editor feedback. For accessibility validation, run axe-core via Playwright on the rendered pages rather than linting source files - this tests the actual output, which is more reliable. The community largely relies on the compiler + LSP + code review for HTML quality.
 
 ### What's Actually Better
 
