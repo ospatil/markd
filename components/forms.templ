@@ -3,105 +3,102 @@ package components
 import "github.com/ospatil/markd/internal/model"
 
 type BookmarkFormData struct {
-  Title string
-  URL   string
-  Tags  string
+	Title string
+	URL   string
+	Tags  string
 }
 
 templ BookmarkFormDialog(data BookmarkFormData, folders []model.Folder, errors map[string]string) {
-  <dialog
-    id="add-bookmark-dialog"
-    class="dialog w-full sm:max-w-[480px]"
-    onclick="if (event.target === this) this.close()"
-    data-controller="dialog"
-    data-action="click->dialog#backdropClose"
-  >
-    <div>
-      <header>
-        <h2>Add Bookmark</h2>
-        <p>Save a new bookmark with optional tags.</p>
-      </header>
-      <section>
-        <form
-          id="add-bookmark-form"
-          class="form grid gap-4"
-          hx-post="/bookmarks"
-          hx-target="#bookmark-list"
-          hx-swap="afterbegin"
-          hx-status:422="target:#form-errors swap:innerHTML"
-        >
-          <div role="group" class="field">
-            <label for="bookmark-title">Title</label>
-            <input
-              id="bookmark-title"
-              name="title"
-              type="text"
-              placeholder="My Bookmark"
-              value={ data.Title }
-              if errors["title"] != "" {
-                aria-invalid="true"
-                aria-describedby="title-error"
-              }
-              autofocus
-            />
-            if errors["title"] != "" {
-              <p id="title-error" role="alert">{ errors["title"] }</p>
-            }
-          </div>
-          <div role="group" class="field">
-            <label for="bookmark-url">URL</label>
-            <input
-              id="bookmark-url"
-              name="url"
-              type="url"
-              placeholder="https://example.com"
-              value={ data.URL }
-              if errors["url"] != "" {
-                aria-invalid="true"
-                aria-describedby="url-error"
-              }
-            />
-            if errors["url"] != "" {
-              <p id="url-error" role="alert">{ errors["url"] }</p>
-            }
-          </div>
-          <div role="group" class="field">
-            <label for="bookmark-tags">Tags</label>
-            <input
-              id="bookmark-tags"
-              name="tags"
-              type="text"
-              placeholder="go, htmx, web (comma separated)"
-              value={ data.Tags }
-            />
-          </div>
-          if len(folders) > 0 {
-            <div role="group" class="field">
-              <label for="bookmark-folder">Folder</label>
-              <select id="bookmark-folder" name="folder_id" class="select w-full">
-                <option value="">None</option>
-                for _, f := range folders {
-                  <option value={ f.ID }>{ f.Name }</option>
-                }
-              </select>
-            </div>
-          }
-          <div id="form-errors"></div>
-        </form>
-      </section>
-      <footer>
-        <button class="btn-outline" data-action="click->dialog#close">Cancel</button>
-        <button class="btn" type="submit" form="add-bookmark-form">Save</button>
-      </footer>
-      <button type="button" aria-label="Close dialog" data-action="click->dialog#close">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-      </button>
-    </div>
-  </dialog>
+	<dialog
+		id="add-bookmark-dialog"
+		class="modal"
+		data-controller="dialog"
+		data-action="click->dialog#backdropClose"
+	>
+		<div class="modal-box">
+			<h3 class="text-lg font-bold">Add Bookmark</h3>
+			<p class="py-2 opacity-60">Save a new bookmark with optional tags.</p>
+			<form
+				id="add-bookmark-form"
+				class="grid gap-4"
+				hx-post="/bookmarks"
+				hx-target="#bookmark-list"
+				hx-swap="afterbegin"
+				hx-status:422="target:#form-errors swap:innerHTML"
+			>
+				<fieldset class="fieldset">
+					<label class="fieldset-label" for="bookmark-title">Title</label>
+					<input
+						id="bookmark-title"
+						name="title"
+						type="text"
+						class="input input-bordered w-full"
+						placeholder="My Bookmark"
+						value={ data.Title }
+						if errors["title"] != "" {
+							aria-invalid="true"
+							aria-describedby="title-error"
+						}
+						autofocus
+					/>
+					if errors["title"] != "" {
+						<p id="title-error" class="text-error text-sm" role="alert">{ errors["title"] }</p>
+					}
+				</fieldset>
+				<fieldset class="fieldset">
+					<label class="fieldset-label" for="bookmark-url">URL</label>
+					<input
+						id="bookmark-url"
+						name="url"
+						type="url"
+						class="input input-bordered w-full"
+						placeholder="https://example.com"
+						value={ data.URL }
+						if errors["url"] != "" {
+							aria-invalid="true"
+							aria-describedby="url-error"
+						}
+					/>
+					if errors["url"] != "" {
+						<p id="url-error" class="text-error text-sm" role="alert">{ errors["url"] }</p>
+					}
+				</fieldset>
+				<fieldset class="fieldset">
+					<label class="fieldset-label" for="bookmark-tags">Tags</label>
+					<input
+						id="bookmark-tags"
+						name="tags"
+						type="text"
+						class="input input-bordered w-full"
+						placeholder="go, htmx, web (comma separated)"
+						value={ data.Tags }
+					/>
+				</fieldset>
+				if len(folders) > 0 {
+					<fieldset class="fieldset">
+						<label class="fieldset-label" for="bookmark-folder">Folder</label>
+						<select id="bookmark-folder" name="folder_id" class="select select-bordered w-full">
+							<option value="">None</option>
+							for _, f := range folders {
+								<option value={ f.ID }>{ f.Name }</option>
+							}
+						</select>
+					</fieldset>
+				}
+				<div id="form-errors"></div>
+			</form>
+			<div class="modal-action">
+				<button class="btn btn-outline" data-action="click->dialog#close">Cancel</button>
+				<button class="btn btn-primary" type="submit" form="add-bookmark-form">Save</button>
+			</div>
+			<button type="button" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" data-action="click->dialog#close">✕</button>
+		</div>
+		<form method="dialog" class="modal-backdrop"><button>close</button></form>
+	</dialog>
 }
 
 templ FormErrors(errors map[string]string) {
-  for field, msg := range errors {
-    <p role="alert" class="text-sm text-destructive">{ field }: { msg }</p>
-  }
+	for field, msg := range errors {
+		<p role="alert" class="text-sm text-error">{ field }: { msg }</p>
+	}
 }

@@ -25,17 +25,30 @@ The document is organized as follows:
 | Server | Go + Chi | Routing, business logic, HTML rendering |
 | Templating | templ (recommended) or Go `html/template` | Type-safe, composable server-side HTML |
 | Interactions | HTMX 4 | HTTP requests, DOM swaps |
-| Components | Basecoat | UI component library (Tailwind + shadcn-style) |
+| Components | Basecoat or daisyUI | UI component library (Tailwind-based) |
 | Behavior | Stimulus | Client-side JS organization |
-| Styling | Tailwind CSS | Utility CSS (via Basecoat) |
+| Styling | Tailwind CSS | Utility CSS (via component library) |
 
 Each tool fills a distinct role without overlap:
 
 - **HTMX 4** - replaces the SPA router + data fetching layer. The server returns HTML fragments, skipping the JSON-to-client-render cycle entirely.
-- **Basecoat** - provides a component library (Tailwind + shadcn-style) that works with server-rendered HTML. No React/Svelte needed just for UI components.
+- **Basecoat or daisyUI** - provides a component library (Tailwind-based) that works with server-rendered HTML. No React/Svelte needed just for UI components. The PoC uses daisyUI (35k+ stars, pure CSS, 50+ components). Basecoat is an alternative for teams that prefer shadcn/ui design language.
 - **Stimulus** - provides a thin JS interactivity layer (toggling classes, managing small state, connecting DOM elements to behavior) without a virtual DOM or reactivity system.
 - **Go + Chi** - minimal, composable HTTP server. Just a router and middleware on top of `net/http`.
 - **templ** - type-safe HTML templating for Go with LSP support, compile-time error checking, and first-class HTMX integration. Recommended over `html/template`.
+
+### Component Library Alternatives
+
+The PoC uses daisyUI, but other Tailwind-based component libraries work with this stack:
+
+| Library | Stars | JS required? | Design | Notes |
+|---------|-------|-------------|--------|-------|
+| **daisyUI** | 35k+ | No (pure CSS) | Its own style, 30+ themes | Used in the PoC. Most components, largest community |
+| **Basecoat** | 3.9k | ~3KB for some | shadcn/ui compatible | Best choice for shadcn design language |
+| **Pines UI** | 1k+ | Yes (Alpine.js) | shadcn/ui look and feel | Requires Alpine.js - adds a second JS behavior library alongside Stimulus |
+| **Ripple UI** | 2k+ | No (pure CSS) | Its own style | Similar to daisyUI but smaller component set |
+
+For this stack, pure CSS libraries (daisyUI, Ripple UI) are the best fit since they don't introduce a JS framework dependency. Pines UI and Basecoat are alternatives if shadcn aesthetics are a priority - Pines requires Alpine.js which overlaps with Stimulus, while Basecoat works without it.
 
 ## HTMX 4 - Key Features
 
@@ -247,9 +260,9 @@ When client behavior needs to trigger server updates or react to them:
 ### Why Stimulus Over Alpine.js
 
 - **Alpine UI components are a paid product**. Without it, Alpine gives you reactivity primitives but no pre-built components.
-- **Basecoat already provides the component library** (open source, shadcn-style) - buttons, dialogs, selects, tabs, etc.
+- **daisyUI already provides the component library (open source, pure CSS) - buttons, dialogs, selects, tabs, etc.
 - **Stimulus keeps JS in separate controller files**, which scales better organizationally. Alpine scatters JS logic across HTML attributes.
-- With HTMX attributes + Basecoat attributes + Alpine attributes, you'd have three different attribute systems competing in markup. Stimulus avoids this.
+- With HTMX attributes + component library classes + Alpine attributes, you'd have three different attribute systems competing in markup. Stimulus avoids this.
 
 ### Why Not jQuery/Umbrella.js
 
@@ -260,7 +273,7 @@ Modern browser APIs have closed the convenience gap:
 - `element.closest()`, `.matches()`, `.classList`, `.remove()` are all native
 - `fetch()` replaced `$.ajax`
 
-In this stack, HTMX handles DOM mutations and Basecoat handles component styling. What remains is behavioral wiring - exactly what Stimulus is designed for. A DOM library would be redundant.
+In this stack, HTMX handles DOM mutations and daisyUI handles component styling. What remains is behavioral wiring - exactly what Stimulus is designed for. A DOM library would be redundant.
 
 ### Other Alternatives Considered
 
@@ -295,7 +308,7 @@ Astro sits in the middle ground - server-first like this stack but still in the 
 | Build step | Vite (required) | Tailwind CLI (optional esbuild) |
 | Templating | `.astro` files (JSX-like) | Go `html/template` |
 | Islands | Built-in (`client:load`, `client:visible`) | Manual via Stimulus controllers |
-| Component library | Any (React, Svelte, Vue) | Basecoat |
+| Component library | Any (React, Svelte, Vue) | daisyUI |
 | Deployment | Node server or edge runtime | Single binary |
 | Dependencies | Hundreds (`node_modules`) | Go modules + 3 JS files |
 
@@ -819,7 +832,7 @@ The win: validation logic lives in one place. No keeping Zod schemas in sync bet
 | Data loading | `load()` function returns JSON | Handler renders HTML directly |
 | UI | Svelte component with reactive markup | Go template with `hx-*` attributes |
 | Interactivity | Runes, bindings, reactive blocks | HTMX attributes, Stimulus if needed |
-| Styling | Scoped `<style>` in component | Basecoat `data-bc` + Tailwind classes |
+| Styling | Scoped `<style>` in component | daisyUI + Tailwind classes |
 | Testing the UI | Need browser/JSDOM | `curl` the endpoint, inspect HTML |
 | Hot reload | Vite HMR (instant) | Air live reload (~200ms rebuild) |
 
@@ -882,7 +895,7 @@ Goes beyond "hello world" (TodoMVC) while staying small. Exercises every part of
 
 ### Stack Exercise Map
 
-| Feature | HTMX | Basecoat | Stimulus | templ | Go/Chi |
+| Feature | HTMX | daisyUI | Stimulus | templ | Go/Chi |
 |---------|------|----------|----------|-------|--------|
 | Add bookmark | POST form, swap into list | Dialog, input, button | Open/close dialog, reset form | Form + list item components | CRUD route |
 | Move between folders | GET with folder param, swap list | Sidebar, list | - | Folder layout + bookmark list components | Query + render |
@@ -951,7 +964,7 @@ markd/
   go.mod
   go.sum
   Makefile                     # Build, test, dev commands
-  tailwind.config.js           # Tailwind + Basecoat config
+  tailwind.config.js           # Tailwind + daisyUI config
   .air.toml                    # Air live reload config
 ```
 
@@ -1001,7 +1014,7 @@ lint:                              ## Run Go linter
 - **HTMX 4.x** - use the new event naming (`htmx:phase:action`), explicit inheritance (`:inherited`), `<hx-partial>` for multi-target updates, `hx-status` for error handling, morph swaps. Do NOT use deprecated HTMX 2.x patterns. Reference: https://four.htmx.org/docs
 - **templ** - use the latest version. Write `.templ` files, run `templ generate`, use the LSP for IDE support. Prefer templ over `html/template` for type safety and composability. Reference: https://templ.guide/
 - **Stimulus** - use the latest `@hotwired/stimulus` package. Follow the controller/target/value/action conventions. Reference: https://stimulus.hotwired.dev
-- **Basecoat** - use the latest component APIs and `data-bc` attribute patterns. Reference: https://basecoatjs.com (verify current URL)
+- **daisyUI** - use the latest component classes. Reference: https://daisyui.com
 - **Go + Chi** - use the latest `github.com/go-chi/chi/v5`. Follow Go idioms, use `context` properly, handle errors explicitly. Reference: https://go-chi.io
 - **Tailwind CSS** - use the latest v4.x with the standalone CLI where possible to avoid Node dependency. Reference: https://tailwindcss.com
 
@@ -1310,7 +1323,7 @@ This stack is notably well-suited for LLM-assisted development compared to JS fr
 ### Where JS Frameworks Have an Edge
 
 - **Training data volume** - vastly more React/Svelte/Next code in training data. For common patterns, LLMs can generate SvelteKit code almost from muscle memory.
-- **Component ecosystem** - LLMs know exactly which Svelte/React library to reach for and how to wire it up. With Basecoat + Stimulus, more guidance may be needed.
+- **Component ecosystem** - LLMs know exactly which Svelte/React library to reach for and how to wire it up. With daisyUI + Stimulus, more guidance may be needed.
 - **Complex client-side logic** - for the 5% of features needing rich interactivity, LLMs produce better Svelte code than Stimulus controller code due to more training examples.
 
 ### Practical Consideration
@@ -1320,7 +1333,7 @@ HTMX 4 is new. LLMs may not have it in training data and may default to HTMX 2.x
 - **HTMX 4** - ~15 attributes, ~20 events, a handful of config options. One page of docs covers most of it.
 - **templ** - a subset of Go with HTML. The syntax guide is a single page.
 - **Stimulus** - controllers, targets, values, actions. The handbook is 7 short pages.
-- **Basecoat** - component catalog with attribute patterns.
+- **daisyUI** - component catalog with class-based patterns.
 
 The complete documentation for this entire stack is a fraction of what SvelteKit alone requires. The "training data gap" is a non-issue in practice - you close it with a few indexed pages.
 
@@ -1609,4 +1622,4 @@ This stack is best suited for: CRUD apps, dashboards, admin panels, content site
 
 For the rare genuinely interactive widget (charts, drag-and-drop, collaborative editing), use Stimulus controllers as islands - JS only where it is needed, not everywhere by default.
 
-The tools have caught up. HTMX 4's morphing, multi-target updates, and optimistic UI close the UX gaps that previously made SPAs the only viable choice. templ brings type safety and LSP support to server-side templates. Basecoat provides a component library without requiring React. The question is no longer "can you build real apps this way?" but "is this the right fit for your app?"
+The tools have caught up. HTMX 4's morphing, multi-target updates, and optimistic UI close the UX gaps that previously made SPAs the only viable choice. templ brings type safety and LSP support to server-side templates. daisyUI provides a component library without requiring React. The question is no longer "can you build real apps this way?" but "is this the right fit for your app?"

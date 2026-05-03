@@ -19,9 +19,9 @@ This project exercises every part of the stack on a real (if small) application 
 | Server | **Go + Chi** | Routing, business logic, HTML rendering |
 | Templating | **templ** | Type-safe, composable server-side HTML |
 | Interactions | **HTMX 4** | HTTP requests, DOM swaps, no client-side router |
-| Components | **Basecoat** | UI component library (Tailwind + shadcn-style) |
+| Components | **daisyUI** | UI component library (Tailwind + component classes) |
 | Behavior | **Stimulus** | Client-side JS organization (controllers/targets/actions) |
-| Styling | **Tailwind CSS v4** | Utility CSS via Basecoat |
+| Styling | **Tailwind CSS v4** | Utility CSS via daisyUI |
 | Database | **SQLite** | Embedded, zero-config (via modernc.org/sqlite, pure Go) |
 
 Each tool fills a distinct role without overlap. The server returns HTML fragments for HTMX requests and full pages for direct navigation. No hydration, no virtual DOM, no bundle size anxiety.
@@ -32,7 +32,7 @@ Each tool fills a distinct role without overlap. The server returns HTML fragmen
 - **Folders** - organize bookmarks, sidebar navigation with active state
 - **Tags** - comma-separated input, click-to-filter, clear filter
 - **Live search** - debounced search-as-you-type (HTMX `hx-trigger="input changed delay:300ms"`)
-- **Dark mode** - Basecoat theme toggle with localStorage persistence
+- **Dark mode** - daisyUI theme toggle with localStorage persistence
 - **Keyboard shortcuts** - Ctrl/Cmd+K to focus search (Stimulus controller)
 - **Form validation** - server-side validation, 422 responses routed via `hx-status:422`
 - **Preload** - HTMX preload extension for near-instant navigation on hover
@@ -90,7 +90,7 @@ markd/
     folders.templ               # Folder sidebar
     forms.templ                 # Add bookmark dialog, validation errors
   static/
-    css/input.css               # Tailwind + Basecoat imports
+    css/input.css               # Tailwind + daisyUI imports
     js/
       app.js                    # Stimulus entry point
       controllers/              # Stimulus controllers (shortcuts, dialog)

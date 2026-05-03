@@ -2,7 +2,7 @@ package components
 
 templ Layout(title string) {
   <!DOCTYPE html>
-  <html lang="en" class="dark">
+  <html lang="en" data-theme="dark">
     <head>
       <meta charset="UTF-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,22 +11,15 @@ templ Layout(title string) {
         (() => {
           try {
             const stored = localStorage.getItem('themeMode');
-            if (stored ? stored === 'dark'
-                        : matchMedia('(prefers-color-scheme: dark)').matches) {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
+            const dark = stored ? stored === 'dark'
+                        : matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
           } catch (_) {}
-          const apply = dark => {
-            document.documentElement.classList.toggle('dark', dark);
-            try { localStorage.setItem('themeMode', dark ? 'dark' : 'light'); } catch (_) {}
-          };
-          document.addEventListener('basecoat:theme', (event) => {
-            const mode = event.detail?.mode;
-            apply(mode === 'dark' ? true
-                  : mode === 'light' ? false
-                  : !document.documentElement.classList.contains('dark'));
+          document.addEventListener('toggleTheme', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('themeMode', next); } catch (_) {}
           });
         })();
       </script>
@@ -44,24 +37,26 @@ templ Layout(title string) {
         });
       </script>
     </head>
-    <body class="min-h-screen bg-background text-foreground" hx-preload="mouseover"
+    <body class="min-h-screen bg-base-100" hx-preload="mouseover"
           data-controller="shortcuts">
-      <header class="border-b">
-        <div class="container mx-auto flex items-center justify-between px-4 py-3">
-          <a href="/" class="text-xl font-bold" hx-get="/" hx-target="#bookmark-list" hx-push-url="true">markd</a>
-          <div class="flex items-center gap-2">
+      <div class="navbar bg-base-200">
+        <div class="container mx-auto flex items-center justify-between">
+          <div class="flex-none">
+            <a href="/" class="text-xl font-bold" hx-get="/" hx-target="#bookmark-list" hx-push-url="true">markd</a>
+          </div>
+          <div class="flex-none flex items-center gap-2">
             <input
               type="search"
               name="q"
               placeholder="Search... (Ctrl+K)"
-              class="input w-64"
+              class="input input-bordered w-64"
               hx-get="/bookmarks/search"
               hx-trigger="input changed delay:300ms"
               hx-target="#bookmark-list"
               data-shortcuts-target="search"
             />
             <button
-              class="btn"
+              class="btn btn-primary"
               onclick="document.getElementById('add-bookmark-dialog').showModal()"
             >
               + Add Bookmark
@@ -69,15 +64,14 @@ templ Layout(title string) {
             <button
               type="button"
               aria-label="Toggle dark mode"
-              onclick="document.dispatchEvent(new CustomEvent('basecoat:theme'))"
-              class="btn-icon-outline size-8"
+              onclick="document.dispatchEvent(new CustomEvent('toggleTheme'))"
+              class="btn btn-ghost btn-square"
             >
-              <span class="hidden dark:block">☀</span>
-              <span class="block dark:hidden">🌙</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
             </button>
           </div>
         </div>
-      </header>
+      </div>
       <main class="container mx-auto px-4 py-6">
         { children... }
       </main>
