@@ -353,6 +353,39 @@ Key difference: Turbo uses custom HTML elements while HTMX uses attributes on st
 
 You could use Turbo + Stimulus with Go, but you'd be fighting upstream - the docs, examples, and community all assume Rails. This stack is essentially "Hotwire for the rest of us" - same philosophy, better fit for Go.
 
+### Real-Time: WebSocket and SSE
+
+HTMX 4 has built-in WebSocket and SSE extensions for server-to-client pushes. The server sends HTML fragments over the connection and HTMX swaps them into the DOM - same model as regular requests, just real-time.
+
+```html
+<!-- WebSocket: server pushes HTML fragments -->
+<div hx-ws:connect="/ws/notifications">
+  <div id="messages"></div>
+</div>
+
+<!-- SSE: server pushes events with HTML -->
+<div hx-sse:connect="/events" hx-sse:swap="message">
+  <div id="feed"></div>
+</div>
+```
+
+The typical pattern is HTTP for user-initiated actions (clicks, form submissions, search) and WebSocket/SSE for server-initiated updates (notifications, live feeds, presence indicators). You don't route everything through a single WebSocket - you use HTTP for the request/response cycle and WebSocket for the push channel.
+
+### Stateless vs Stateful: HTMX/Hotwire vs LiveView/Livewire
+
+There's a different paradigm worth understanding - frameworks like Phoenix LiveView (Elixir) and Laravel Livewire route all interactions through a persistent WebSocket. The server maintains a stateful session per connection, every click sends an event over the socket, the server re-renders and pushes the diff back.
+
+| Approach | User actions | Server pushes | Server state |
+|---|---|---|---|
+| **HTMX** | HTTP requests | WebSocket/SSE (optional) | Stateless |
+| **Hotwire** | HTTP requests | WebSocket via ActionCable (optional) | Stateless |
+| **Phoenix LiveView** | WebSocket (everything) | WebSocket (everything) | Stateful per connection |
+| **Laravel Livewire** | WebSocket (everything) | WebSocket (everything) | Stateful per connection |
+
+LiveView/Livewire are more powerful for highly interactive real-time UIs, but more complex - the server holds state per connection, which makes horizontal scaling harder. HTMX and Hotwire are stateless - each request is independent, which is simpler, scales better, and works naturally with load balancers and CDNs.
+
+For most applications (CRUD, dashboards, content sites), the stateless HTTP model with optional WebSocket for real-time is the right choice. LiveView's stateful model shines for collaborative editing, live dashboards with many moving parts, and gaming-style interactions.
+
 ## Visualization / Chart Integration
 
 Charts are client-side JS widgets - no way around that. The pattern is to use Stimulus controllers as adapters between server-provided data and the charting library.
