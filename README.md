@@ -1,6 +1,6 @@
 # markd
 
-A bookmark manager built with a server-driven UI stack  - an alternative to JavaScript SPA frameworks.
+A bookmark manager built with a server-driven UI stack - an alternative to JavaScript SPA frameworks.
 
 ## Why
 
@@ -145,16 +145,16 @@ Open http://localhost:3000.
 ## Development
 
 ```bash
-# Start dev mode  - 4 watchers in one terminal
+# Start dev mode - 4 watchers in one terminal
 make dev
 ```
 
 This runs in parallel:
 
-1. **Air**  - watches `.go` files, rebuilds and restarts the server (~200ms)
-2. **templ**  - watches `.templ` files, regenerates Go code
-3. **Tailwind**  - watches for CSS changes
-4. **esbuild**  - watches Stimulus controllers, rebundles JS
+1. **Air** - watches `.go` files, rebuilds and restarts the server (~200ms)
+2. **templ** - watches `.templ` files, regenerates Go code
+3. **Tailwind** - watches for CSS changes
+4. **esbuild** - watches Stimulus controllers, rebundles JS
 
 Edit a `.templ` file → templ generates Go → Air restarts → refresh browser.
 
@@ -163,19 +163,19 @@ If you modify API handler annotations in `internal/api/api.go`, regenerate the S
 ## Testing
 
 ```bash
-# Go unit tests (store, handlers, components)  - 26 tests
+# Go unit tests (store, handlers, components) - 26 tests
 make test
 
 # Verbose
 make test-v
 
-# Playwright E2E tests (Stimulus behavior)  - 7 tests
+# Playwright E2E tests (Stimulus behavior) - 7 tests
 make test-e2e
 ```
 
 The Go tests demonstrate how easy server-driven UIs are to test:
 
-- **Store tests** - create an in-memory SQLite DB, call methods, assert results
+- **Store tests** - create a SQLite DB, call methods, assert results
 - **Handler tests** - `httptest.NewRecorder`, send a request, check the HTML response. No browser needed.
 - **Component tests** - render a templ component to a string, assert it contains the right HTML
 - **E2E tests** - Playwright for the 5% that needs a real browser (keyboard shortcuts, dialog behavior, theme toggle)
@@ -263,7 +263,7 @@ CloudFront
 
 ### Nginx (Optional)
 
-For deployments without a CDN, an Nginx config is provided in `docker/nginx/` that handles static asset caching (1-year immutable headers), gzip compression, and reverse proxying to the Go app. With a CDN in front, Nginx is unnecessary  - the Go app serves static files directly.
+For deployments without a CDN, an Nginx config is provided in `docker/nginx/` that handles static asset caching (1-year immutable headers), gzip compression, and reverse proxying to the Go app. With a CDN in front, Nginx is unnecessary - the Go app serves static files directly.
 
 ## Stack Discussion
 

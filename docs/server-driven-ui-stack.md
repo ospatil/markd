@@ -197,6 +197,8 @@ In Svelte, state lives on the client and the UI reacts to it. In this stack, sta
 
 ### Three Tiers of Interactivity
 
+The split between HTMX and Stimulus is simple: **HTMX handles anything that needs the server** (data, state changes, validation). **Stimulus handles client-only behavior** (focus management, keyboard shortcuts, toggling UI elements). If the interaction doesn't need data from the server, it's Stimulus. If it does, it's HTMX. No overlap.
+
 **Tier 1: Pure HTMX (no JS at all) - covers ~70% of interactions**
 
 ```html
