@@ -36,19 +36,21 @@ Each tool fills a distinct role without overlap. The server returns HTML fragmen
 - **Keyboard shortcuts** - Ctrl/Cmd+K to focus search (Stimulus controller)
 - **Form validation** - server-side validation, 422 responses routed via `hx-status:422`
 - **Preload** - HTMX preload extension for near-instant navigation on hover
+- **JSON API** - RESTful endpoints at `/api/` for integration with other apps
+- **Swagger UI** - interactive API documentation (enable with `ENABLE_API_DOCS=true`)
 
 ## How It Works
 
 Every interaction is an HTTP request that returns an HTML fragment:
 
-```
+```text
 User clicks "Delete" button
   -> HTMX sends DELETE /bookmarks/42
   -> Go handler deletes from SQLite, returns empty 200
   -> HTMX removes the element (outerHTML swap)
 ```
 
-```
+```text
 User types in search box
   -> HTMX sends GET /bookmarks/search?q=go (after 300ms debounce)
   -> Go handler queries SQLite, renders templ component to HTML
@@ -74,8 +76,11 @@ markd/
     lambda/main.go              # AWS Lambda entry point
   internal/
     app/router.go               # Shared Chi router (used by both server and lambda)
+    api/
+      api.go                    # JSON API handlers
+      api_test.go               # API tests
     handler/
-      handler.go                # HTTP handlers (bookmarks, folders, search)
+      handler.go                # HTML handlers (bookmarks, folders, search)
       handler_test.go           # Handler tests
     model/                      # Bookmark, Folder structs
     store/
@@ -98,8 +103,12 @@ markd/
   tests/e2e/                    # Playwright E2E tests
   scripts/
     lambda-deploy.sh            # Lambda deploy/teardown script
+  docs/
+    swagger/                    # Generated OpenAPI spec (via make swagger)
+    server-driven-ui-stack.md   # Stack discussion and design notes
+    request-walkthrough.drawio  # Request flow diagram (source)
+    request-walkthrough.png     # Request flow diagram (generated)
   docker/nginx/                 # Optional Nginx config (for non-CDN deployments)
-  docs/                         # Stack discussion and design notes
   Dockerfile                    # Multi-stage build (distroless runtime)
   docker-compose.yml            # Single-container local setup
   .golangci.yml                 # Linter configuration
@@ -152,7 +161,7 @@ Edit a `.templ` file → templ generates Go → Air restarts → refresh browser
 ## Testing
 
 ```bash
-# Go unit tests (store, handlers, components)  - 19 tests
+# Go unit tests (store, handlers, components)  - 26 tests
 make test
 
 # Verbose
@@ -193,7 +202,7 @@ func TestFilterByTag(t *testing.T) {
 | `make dev` | Start all watchers (server + templ + CSS + JS) |
 | `make run` | Build everything and run the server |
 | **Quality** | |
-| `make test` | Run Go tests (19 tests) |
+| `make test` | Run Go tests (26 tests) |
 | `make test-e2e` | Run Playwright E2E tests (7 tests) |
 | `make lint` | Run Go linter (golangci-lint) |
 | `make fmt` | Format Go code |
@@ -210,6 +219,7 @@ func TestFilterByTag(t *testing.T) {
 | `make docker-build` | Build Docker images without starting |
 | `make build` | Build the server binary |
 | `make generate` | Generate templ Go code |
+| `make swagger` | Generate Swagger API docs |
 | `make css` | Build Tailwind CSS |
 | `make js` | Bundle Stimulus controllers |
 | `make clean` | Remove build artifacts |
@@ -243,7 +253,7 @@ make build-lambda
 
 Architecture with Lambda:
 
-```
+```text
 CloudFront
   /static/*  → S3 bucket
   /*         → API Gateway HTTP API → Lambda (Go)

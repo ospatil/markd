@@ -586,7 +586,7 @@ HTMX attributes work naturally in templ files since they're just HTML attributes
 
 ### The Build Workflow
 
-```
+```text
 1. Write .templ files
 2. Run `templ generate` (compiles to .go files)
 3. Go build picks up the generated .go files
@@ -600,7 +600,7 @@ Official Chi integration example: https://github.com/a-h/templ/tree/main/example
 
 ### Project Structure
 
-```
+```text
 project/
   static/
     css/        # Tailwind output
@@ -698,7 +698,7 @@ The DX is quite different from SvelteKit/Next where everything is one integrated
 
 The full cycle for adding a new feature (e.g., "filter bookmarks by tag"):
 
-```
+```text
 1. Define route          (Go - 1 line)
 2. Write handler         (Go - 3-5 lines)
 3. Write template        (HTML - the actual UI)
@@ -864,7 +864,7 @@ func TestFilterBookmarks(t *testing.T) {
 
 ### Recommended Dev Setup
 
-```
+```text
 terminal 1: templ generate --watch       # watches .templ files, generates .go
 terminal 2: air                          # watches .go files, restarts server
 terminal 3: tailwindcss -w -i ... -o ... # watches for CSS changes
@@ -877,6 +877,24 @@ Three terminal processes. No `node_modules`. No build pipeline. The feedback loo
 ### The Honest DX Tradeoff
 
 The DX is simpler but less polished. You trade Vite's instant HMR and Svelte's compiler feedback for a more transparent, debuggable system where every interaction is a visible HTTP request returning inspectable HTML. For developers who value understanding exactly what's happening over framework magic, this is a net positive. For those who rely heavily on IDE integration, type-safe templates, and instant feedback loops, there's a real adjustment period.
+
+## JSON API Alongside HTML
+
+A common concern with server-driven UI stacks is whether they can also serve JSON APIs for mobile apps, third-party integrations, or SPAs that need data endpoints. The answer is straightforward - the same store layer serves both.
+
+The architecture separates concerns cleanly:
+
+```text
+internal/
+  store/          # Data access (shared by both)
+  handler/        # HTML handlers (returns templ-rendered HTML)
+  api/            # JSON handlers (returns JSON via encoding/json)
+  app/router.go   # Mounts both under / and /api
+```
+
+The HTML handlers and JSON handlers use the same store interface. Adding a JSON API is just another set of handlers with `json.NewEncoder` instead of `templ.Render`. No duplication of business logic.
+
+For API documentation, swaggo/swag generates OpenAPI specs from Go comments, and swaggo/http-swagger serves Swagger UI. The docs are enabled via an environment variable (`ENABLE_API_DOCS=true`) so they're available in development but not in production.
 
 ## PoC Application - Bookmark Manager
 
@@ -906,67 +924,7 @@ Goes beyond "hello world" (TodoMVC) while staying small. Exercises every part of
 
 ## Project Structure
 
-```
-markd/
-  cmd/
-    server/
-      main.go                  # HTTP server entry point (local dev)
-      main_lambda.go           # Lambda entry point (build tag: lambda)
-  internal/
-    handler/
-      handler.go               # Handler struct, constructor, shared helpers
-      bookmarks.go             # Bookmark CRUD handlers
-      folders.go               # Folder handlers
-      search.go                # Search/filter handlers
-      handler_test.go          # Unit tests for handlers
-    model/
-      bookmark.go              # Bookmark struct and types
-      folder.go                # Folder struct and types
-      tag.go                   # Tag struct and types
-    store/
-      store.go                 # Store interface
-      sqlite.go                # SQLite implementation
-      sqlite_test.go           # Store tests
-    middleware/
-      htmx.go                  # HX-Request detection, partial vs full page
-      auth.go                  # Session/auth middleware
-  components/
-    layout.templ               # Base HTML layout (head, scripts, nav)
-    bookmarks.templ            # Bookmark list, item, card components
-    folders.templ              # Folder sidebar, tree components
-    forms.templ                # Add/edit bookmark dialog, tag input
-    search.templ               # Search results, filter bar
-    shared.templ               # Shared partials (empty states, badges, errors)
-  static/
-    css/
-      input.css                # Tailwind input (imports, base styles)
-      app.css                  # Tailwind output (generated, gitignored)
-    js/
-      app.js                   # Stimulus app init + controller registration
-      controllers/
-        dialog_controller.js   # Open/close dialogs
-        tag_input_controller.js # Tag add/remove behavior
-        shortcuts_controller.js # Keyboard shortcuts
-        chart_controller.js    # Chart rendering (if needed)
-    vendor/
-      htmx.min.js              # HTMX 4 (vendored)
-      stimulus.min.js          # Stimulus (vendored)
-  migrations/
-    001_init.sql               # Create tables
-  tests/
-    integration/
-      bookmarks_test.go        # Full CRUD flow tests with httptest.NewServer
-      auth_test.go             # Auth middleware integration tests
-    e2e/
-      bookmarks.spec.js        # Playwright tests for Stimulus behavior
-      playwright.config.js
-  server-driven-ui-stack.md    # This document
-  go.mod
-  go.sum
-  Makefile                     # Build, test, dev commands
-  tailwind.config.js           # Tailwind + daisyUI config
-  .air.toml                    # Air live reload config
-```
+See the [project structure in the README](../README.md#project-structure) for the current layout.
 
 ### Key Decisions
 
@@ -1037,7 +995,7 @@ Two-container setup: Nginx serves static assets with caching and compression, pr
 
 ### Project Structure Additions
 
-```
+```text
 markd/
   docker/
     nginx/
@@ -1204,7 +1162,7 @@ docker compose up --build
 
 The same two containers run as a Fargate task definition. Nginx is the sidecar:
 
-```
+```text
 ALB (Application Load Balancer)
   -> Fargate Task
        -> Nginx container (port 80) -> Go app container (port 3000)
@@ -1262,7 +1220,7 @@ Same routes, same handlers, same templ components. Keep a `main_local.go` for lo
 
 Lambda returns HTML, but static assets should not go through it:
 
-```
+```text
 CloudFront (CDN)
   /static/*  -> S3 bucket (CSS, JS, images, fonts)
   /*         -> API Gateway -> Lambda (HTML)
@@ -1588,7 +1546,7 @@ This is the only layer that requires a browser. Reserve it for Stimulus interact
 
 ### Testing Pyramid for This Stack
 
-```
+```text
         /  E2E  \          ~5% - Playwright for Stimulus/browser behavior
        /----------\
       / Integration \      ~25% - httptest.NewServer, full request flows

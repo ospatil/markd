@@ -15,6 +15,9 @@ setup: ## Install dependencies and required Go tools (templ, air, golangci-lint)
 generate: ## Generate templ Go code
 	$(TEMPL) generate
 
+swagger: ## Generate Swagger API docs
+	swag init -g internal/app/router.go -o docs/swagger --parseDependency --parseInternal --useStructName
+
 css: ## Build Tailwind CSS
 	npx @tailwindcss/cli -i static/css/input.css -o static/css/app.css --minify
 
@@ -35,7 +38,7 @@ dev: ## Run all watchers (server + templ + css)
 	@make -j4 dev-server dev-templ dev-css dev-js
 
 dev-server: ## Live-reload Go server
-	air
+	ENABLE_API_DOCS=true air
 
 dev-templ: ## Watch and regenerate templ files
 	$(TEMPL) generate --watch

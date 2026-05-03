@@ -1,0 +1,198 @@
+basePath: /
+definitions:
+  Bookmark:
+    properties:
+      created_at:
+        type: string
+      folder_id:
+        type: string
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+    type: object
+  Folder:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+    type: object
+  createBookmarkRequest:
+    properties:
+      folder_id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Bookmark manager API
+  title: markd API
+  version: "1.0"
+paths:
+  /api/bookmarks:
+    get:
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - description: Filter by tag
+        in: query
+        name: tag
+        type: string
+      - description: Filter by folder ID
+        in: query
+        name: folder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Bookmark'
+            type: array
+      summary: List all bookmarks
+      tags:
+      - bookmarks
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bookmark data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/createBookmarkRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Bookmark'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorResponse'
+      summary: Create a bookmark
+      tags:
+      - bookmarks
+  /api/bookmarks/{id}:
+    delete:
+      parameters:
+      - description: Bookmark ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponse'
+      summary: Delete a bookmark
+      tags:
+      - bookmarks
+    get:
+      parameters:
+      - description: Bookmark ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Bookmark'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponse'
+      summary: Get a bookmark by ID
+      tags:
+      - bookmarks
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bookmark ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Bookmark data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/createBookmarkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Bookmark'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/errorResponse'
+      summary: Update a bookmark
+      tags:
+      - bookmarks
+  /api/folders:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Folder'
+            type: array
+      summary: List all folders
+      tags:
+      - folders
+swagger: "2.0"

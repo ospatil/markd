@@ -22,7 +22,13 @@ func main() {
 
 	r := app.NewRouter(db)
 
-	fmt.Printf("markd listening on :%s\n", port)
+	fmt.Printf("\nmarkd listening on http://localhost:%s\n", port)
+	fmt.Printf("  App:     http://localhost:%s/\n", port)
+	fmt.Printf("  API:     http://localhost:%s/api/bookmarks\n", port)
+	if os.Getenv("ENABLE_API_DOCS") == "true" {
+		fmt.Printf("  Swagger: http://localhost:%s/api/docs/\n", port)
+	}
+	fmt.Println()
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
