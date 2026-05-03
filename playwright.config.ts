@@ -11,9 +11,9 @@ export default defineConfig({
     { name: 'chromium', use: { browserName: 'chromium' } },
   ],
   webServer: {
-    command: 'make run',
+    command: './bin/markd',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    reuseExistingServer: false,
     timeout: 30000,
   },
 });

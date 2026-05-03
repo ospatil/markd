@@ -58,12 +58,12 @@ test.describe('Theme toggle', () => {
   test('toggles between dark and light', async ({ page }) => {
     await page.goto('/');
     // Get initial state (may be light or dark depending on prefers-color-scheme)
-    const initialDark = await page.locator('html').evaluate(el => el.classList.contains('dark'));
+    const initialTheme = await page.locator('html').getAttribute('data-theme');
     await page.click('button[aria-label="Toggle dark mode"]');
-    const afterToggle = await page.locator('html').evaluate(el => el.classList.contains('dark'));
-    expect(afterToggle).toBe(!initialDark);
+    const afterToggle = await page.locator('html').getAttribute('data-theme');
+    expect(afterToggle).not.toBe(initialTheme);
     await page.click('button[aria-label="Toggle dark mode"]');
-    const afterSecondToggle = await page.locator('html').evaluate(el => el.classList.contains('dark'));
-    expect(afterSecondToggle).toBe(initialDark);
+    const afterSecondToggle = await page.locator('html').getAttribute('data-theme');
+    expect(afterSecondToggle).toBe(initialTheme);
   });
 });
