@@ -158,6 +158,8 @@ This runs in parallel:
 
 Edit a `.templ` file → templ generates Go → Air restarts → refresh browser.
 
+If you modify API handler annotations in `internal/api/api.go`, regenerate the Swagger docs with `make swagger`.
+
 ## Testing
 
 ```bash
