@@ -3,7 +3,7 @@ export PATH := $(HOME)/go/bin:$(PATH)
 TEMPL := $(HOME)/go/bin/templ
 
 .PHONY: generate css js build build-lambda run dev dev-server dev-templ dev-css test test-v test-e2e lint fmt clean help \
-       docker-build docker-build-direct docker-up docker-down docker-logs docs
+       docker-build docker-build-direct docker-up docker-down docker-logs docs lambda-deploy lambda-teardown
 
 setup: ## Install dependencies and required Go tools (templ, air, golangci-lint)
 	npm install
@@ -82,6 +82,13 @@ docker-down: ## Stop docker containers
 
 docker-logs: ## Tail docker logs
 	docker compose logs -f
+
+# Lambda
+lambda-deploy: ## Deploy to AWS Lambda with function URL
+	./scripts/lambda-deploy.sh deploy
+
+lambda-teardown: ## Teardown Lambda deployment
+	./scripts/lambda-deploy.sh teardown
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'

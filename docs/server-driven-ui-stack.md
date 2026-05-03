@@ -121,6 +121,40 @@ This stack is chattier than a SPA since every interaction round-trips to the ser
 
 In practice, a Go server returning a filtered HTML fragment is faster than most SPA apps doing JSON parse, state update, virtual DOM diff, and re-render. The chattiness is rarely the bottleneck.
 
+### Example: Chained Selects with HTTP Caching
+
+A common pattern in SPA frameworks is chained selects (country -> province -> city) where client-side state caches previously fetched options. In this stack, the same result is achieved with HTTP caching - no client-side state needed.
+
+```html
+<select name="country"
+        hx-get="/provinces"
+        hx-target="#province-select"
+        hx-include="this">
+  <option value="CA">Canada</option>
+  <option value="US">United States</option>
+</select>
+
+<select id="province-select" name="province"
+        hx-get="/cities"
+        hx-target="#city-select"
+        hx-include="this">
+</select>
+
+<select id="city-select" name="city"></select>
+```
+
+```go
+func (h *Handler) GetProvinces(w http.ResponseWriter, r *http.Request) {
+    // Browser caches this - selecting Canada twice won't hit the server twice
+    w.Header().Set("Cache-Control", "max-age=3600")
+    country := r.URL.Query().Get("country")
+    provinces := h.store.GetProvinces(country)
+    render(w, r, components.ProvinceOptions(provinces))
+}
+```
+
+User selects Canada -> server returns provinces. User selects US -> server returns states. User selects Canada again -> browser serves from cache, no server round-trip. The server controls caching policy via standard HTTP headers, and the browser handles the rest. This is how the web was designed to work.
+
 ### When to Reach for a JS Framework Instead
 
 - Charts/visualizations (use as islands - see below)

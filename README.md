@@ -96,6 +96,8 @@ markd/
       controllers/              # Stimulus controllers (shortcuts, dialog)
     vendor/                     # HTMX 4, preload extension (vendored)
   tests/e2e/                    # Playwright E2E tests
+  scripts/
+    lambda-deploy.sh            # Lambda deploy/teardown script
   docker/nginx/                 # Optional Nginx config (for non-CDN deployments)
   docs/                         # Stack discussion and design notes
   Dockerfile                    # Multi-stage build (distroless runtime)
@@ -202,6 +204,8 @@ func TestFilterByTag(t *testing.T) {
 | `make docker-build-direct` | Build Docker image (use if Go module proxy is blocked) |
 | **Deployment** | |
 | `make build-lambda` | Build Lambda binary (arm64 Linux) |
+| `make lambda-deploy` | Deploy to AWS Lambda with function URL |
+| `make lambda-teardown` | Teardown Lambda deployment |
 | **Low-level** (called by other targets) | |
 | `make docker-build` | Build Docker images without starting |
 | `make build` | Build the server binary |
