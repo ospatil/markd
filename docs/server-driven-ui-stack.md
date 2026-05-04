@@ -914,6 +914,53 @@ Three terminal processes. No `node_modules`. No build pipeline. The feedback loo
 
 The DX is simpler but less polished. You trade Vite's instant HMR and Svelte's compiler feedback for a more transparent, debuggable system where every interaction is a visible HTTP request returning inspectable HTML. For developers who value understanding exactly what's happening over framework magic, this is a net positive. For those who rely heavily on IDE integration, type-safe templates, and instant feedback loops, there's a real adjustment period.
 
+## Internationalization (i18n)
+
+i18n is simpler in this stack than in SPAs because all rendering happens on the server. No client-side translation bundles, no hydration mismatches between languages. The server knows the user's locale (from Accept-Language header, cookie, or URL), selects the right strings, and renders them into the HTML.
+
+### Go i18n Libraries
+
+| Library | Approach |
+|---------|----------|
+| `go-i18n` (nicksnyder) | Message files (JSON/TOML/YAML), plural support, most popular |
+| `go-localize` | Simple key-value, lightweight |
+| `golang.org/x/text` | Standard library, full ICU support, more complex |
+
+### How It Works with templ
+
+Pass translated strings to templ components via the localizer:
+
+```go
+func (h *Handler) ListBookmarks(w http.ResponseWriter, r *http.Request) {
+    lang := getLang(r) // from cookie, header, or URL
+    localizer := i18n.NewLocalizer(bundle, lang)
+
+    bookmarks, _ := h.store.ListBookmarks()
+    components.IndexPage(bookmarks, localizer).Render(r.Context(), w)
+}
+```
+
+```templ
+templ BookmarkEmpty(l *i18n.Localizer) {
+    <p>{ l.MustLocalize(&i18n.LocalizeConfig{MessageID: "NoBookmarks"}) }</p>
+}
+```
+
+Language switching is just a page reload - click a language link, set a cookie, server re-renders everything in the new language. No client-side state to update, no translation bundle to swap.
+
+### Comparison with SPA i18n
+
+| Concern | SPA (react-i18next etc.) | This Stack |
+|---------|------------------------|------------|
+| Translation bundles | Shipped to client, loaded async | Server-side only |
+| Language switch | Re-render client components | Page reload or HTMX swap |
+| SEO | Needs SSR for translated meta tags | Already server-rendered |
+| Plural rules | Client-side ICU | Server-side ICU |
+| Bundle size | Grows with languages | Zero client impact |
+| Complexity | i18n library + framework integration | Go library + pass strings to templ |
+
+The main tradeoff: language switching requires a server round-trip. In an SPA, switching languages can be instant if bundles are preloaded. In practice, this is rarely an issue since users don't switch languages frequently.
+
 ## JSON API Alongside HTML
 
 A common concern with server-driven UI stacks is whether they can also serve JSON APIs for mobile apps, third-party integrations, or SPAs that need data endpoints. The answer is straightforward - the same store layer serves both.
