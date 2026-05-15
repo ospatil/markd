@@ -19,8 +19,8 @@ templ BookmarkListWithTag(bookmarks []model.Bookmark, activeTag string) {
 				<span class="badge badge-primary">{ activeTag }</span>
 				<button
 					class="btn btn-ghost btn-xs"
-					hx-get="/"
-					hx-target="#bookmark-list"
+					data-hx-get="/"
+					data-hx-target="#bookmark-list"
 				>
 					✕ Clear
 				</button>
@@ -50,9 +50,9 @@ templ BookmarkItem(b model.Bookmark) {
 							for _, tag := range b.Tags {
 								<span
 									class="badge badge-secondary badge-sm cursor-pointer"
-									hx-get={ fmt.Sprintf("/bookmarks/filter?tag=%s", tag) }
-									hx-target="#bookmark-list"
-									hx-swap="innerHTML"
+									data-hx-get={ fmt.Sprintf("/bookmarks/filter?tag=%s", tag) }
+									data-hx-target="#bookmark-list"
+									data-hx-swap="innerHTML"
 								>
 									{ tag }
 								</span>
@@ -63,18 +63,18 @@ templ BookmarkItem(b model.Bookmark) {
 				<div class="flex gap-1">
 					<button
 						class="btn btn-ghost btn-xs btn-square"
-						hx-get={ fmt.Sprintf("/bookmarks/%s/edit", b.ID) }
-						hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
-						hx-swap="outerHTML"
+						data-hx-get={ fmt.Sprintf("/bookmarks/%s/edit", b.ID) }
+						data-hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
+						data-hx-swap="outerHTML"
 					>
 						✎
 					</button>
 					<button
 						class="btn btn-ghost btn-xs btn-square"
-						hx-delete={ fmt.Sprintf("/bookmarks/%s", b.ID) }
-						hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
-						hx-swap="outerHTML"
-						hx-confirm="Delete this bookmark?"
+						data-hx-delete={ fmt.Sprintf("/bookmarks/%s", b.ID) }
+						data-hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
+						data-hx-swap="outerHTML"
+						data-hx-confirm="Delete this bookmark?"
 					>
 						✕
 					</button>
@@ -89,9 +89,9 @@ templ BookmarkEditForm(b model.Bookmark, folders []model.Folder, errors map[stri
 		<div class="card-body p-4">
 			<form
 				class="grid gap-3"
-				hx-put={ fmt.Sprintf("/bookmarks/%s", b.ID) }
-				hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
-				hx-swap="outerHTML"
+				data-hx-put={ fmt.Sprintf("/bookmarks/%s", b.ID) }
+				data-hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
+				data-hx-swap="outerHTML"
 			>
 				<fieldset class="fieldset">
 					<label class="fieldset-label" for={ fmt.Sprintf("edit-title-%s", b.ID) }>Title</label>
@@ -151,9 +151,9 @@ templ BookmarkEditForm(b model.Bookmark, folders []model.Folder, errors map[stri
 					<button
 						type="button"
 						class="btn btn-outline btn-sm"
-						hx-get={ fmt.Sprintf("/bookmarks/%s", b.ID) }
-						hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
-						hx-swap="outerHTML"
+						data-hx-get={ fmt.Sprintf("/bookmarks/%s", b.ID) }
+						data-hx-target={ fmt.Sprintf("#bookmark-%s", b.ID) }
+						data-hx-swap="outerHTML"
 					>
 						Cancel
 					</button>

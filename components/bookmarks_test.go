@@ -23,7 +23,7 @@ func TestBookmarkItem(t *testing.T) {
 	b := model.Bookmark{ID: "1", Title: "Go Blog", URL: "https://go.dev", Tags: []string{"go", "blog"}}
 	html := renderComponent(t, BookmarkItem(b))
 
-	checks := []string{"Go Blog", "https://go.dev", "badge-secondary", "go", "blog", `hx-delete`}
+	checks := []string{"Go Blog", "https://go.dev", "badge-secondary", "go", "blog", `data-hx-delete`}
 	for _, want := range checks {
 		if !strings.Contains(html, want) {
 			t.Errorf("BookmarkItem missing %q", want)

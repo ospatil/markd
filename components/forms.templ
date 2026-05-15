@@ -21,10 +21,10 @@ templ BookmarkFormDialog(data BookmarkFormData, folders []model.Folder, errors m
 			<form
 				id="add-bookmark-form"
 				class="grid gap-4"
-				hx-post="/bookmarks"
-				hx-target="#bookmark-list"
-				hx-swap="afterbegin"
-				hx-status:422="target:#form-errors swap:innerHTML"
+				data-hx-post="/bookmarks"
+				data-hx-target="#bookmark-list"
+				data-hx-swap="afterbegin"
+				data-hx-status:422="target:#form-errors swap:innerHTML"
 			>
 				<fieldset class="fieldset">
 					<label class="fieldset-label" for="bookmark-title">Title</label>

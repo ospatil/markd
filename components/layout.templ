@@ -37,12 +37,12 @@ templ Layout(title string) {
         });
       </script>
     </head>
-    <body class="min-h-screen bg-base-100" hx-preload="mouseover"
+    <body class="min-h-screen bg-base-100" data-hx-preload="mouseover"
           data-controller="shortcuts">
       <div class="navbar bg-base-200">
         <div class="container mx-auto flex items-center justify-between">
           <div class="flex-none">
-            <a href="/" class="text-xl font-bold" hx-get="/" hx-target="#bookmark-list" hx-push-url="true">markd</a>
+            <a href="/" class="text-xl font-bold" data-hx-get="/" data-hx-target="#bookmark-list" data-hx-push-url="true">markd</a>
           </div>
           <div class="flex-none flex items-center gap-2">
             <input
@@ -50,9 +50,9 @@ templ Layout(title string) {
               name="q"
               placeholder="Search... (Ctrl+K)"
               class="input input-bordered w-64"
-              hx-get="/bookmarks/search"
-              hx-trigger="input changed delay:300ms"
-              hx-target="#bookmark-list"
+              data-hx-get="/bookmarks/search"
+              data-hx-trigger="input changed delay:300ms"
+              data-hx-target="#bookmark-list"
               data-shortcuts-target="search"
             />
             <button

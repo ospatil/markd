@@ -14,9 +14,9 @@ templ FolderSidebar(folders []model.Folder, activeID string) {
 				<a
 					href="/"
 					class={ templ.KV("active", activeID == "") }
-					hx-get="/"
-					hx-target="#bookmark-list"
-					hx-push-url="true"
+					data-hx-get="/"
+					data-hx-target="#bookmark-list"
+					data-hx-push-url="true"
 				>
 					All Bookmarks
 				</a>
@@ -27,18 +27,18 @@ templ FolderSidebar(folders []model.Folder, activeID string) {
 						<a
 							href={ templ.SafeURL(fmt.Sprintf("/?folder=%s", f.ID)) }
 							class={ "flex-1", templ.KV("active", activeID == f.ID) }
-							hx-get={ fmt.Sprintf("/?folder=%s", f.ID) }
-							hx-target="#bookmark-list"
-							hx-push-url="true"
+							data-hx-get={ fmt.Sprintf("/?folder=%s", f.ID) }
+							data-hx-target="#bookmark-list"
+							data-hx-push-url="true"
 						>
 							{ f.Name }
 						</a>
 						<button
 							class="btn btn-ghost btn-xs btn-square opacity-0 group-hover:opacity-100"
-							hx-delete={ fmt.Sprintf("/folders/%s", f.ID) }
-							hx-target="#folder-sidebar"
-							hx-swap="outerHTML"
-							hx-confirm={ fmt.Sprintf("Delete folder '%s'?", f.Name) }
+							data-hx-delete={ fmt.Sprintf("/folders/%s", f.ID) }
+							data-hx-target="#folder-sidebar"
+							data-hx-swap="outerHTML"
+							data-hx-confirm={ fmt.Sprintf("Delete folder '%s'?", f.Name) }
 						>
 							✕
 						</button>
@@ -48,9 +48,9 @@ templ FolderSidebar(folders []model.Folder, activeID string) {
 			<li>
 				<form
 					class="flex gap-1 p-0"
-					hx-post="/folders"
-					hx-target="#folder-sidebar"
-					hx-swap="outerHTML"
+					data-hx-post="/folders"
+					data-hx-target="#folder-sidebar"
+					data-hx-swap="outerHTML"
 				>
 					<input
 						name="name"

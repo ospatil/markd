@@ -5,12 +5,21 @@ TEMPL := $(HOME)/go/bin/templ
 .PHONY: generate css js build build-lambda run dev dev-server dev-templ dev-css test test-v test-e2e lint fmt clean help \
        docker-build docker-build-direct docker-up docker-down docker-logs docs lambda-deploy lambda-teardown
 
+HTMX_VERSION := 4.0.0-beta3
+
 setup: ## Install dependencies and required Go tools (templ, air, golangci-lint)
 	npm install
 	npx playwright install
 	go install github.com/a-h/templ/cmd/templ@latest
 	go install github.com/air-verse/air@latest
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+	@make vendor-js
+
+vendor-js: ## Download vendored JS (HTMX, preload extension)
+	@mkdir -p static/vendor
+	curl -sL "https://cdn.jsdelivr.net/npm/htmx.org@$(HTMX_VERSION)/dist/htmx.min.js" -o static/vendor/htmx.min.js
+	curl -sL "https://cdn.jsdelivr.net/npm/htmx.org@$(HTMX_VERSION)/dist/ext/hx-preload.js" -o static/vendor/hx-preload.js
+	@echo "Downloaded HTMX $(HTMX_VERSION) + preload extension"
 
 generate: ## Generate templ Go code
 	$(TEMPL) generate
